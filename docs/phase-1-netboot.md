@@ -44,7 +44,7 @@ eutherboot/
     boot/
 ```
 
-Put extracted boot assets under `eutherboot/www/boot/extract/<profile>/...`.
+ISO contents are served virtually under `/mounts/<profile>/...`.
 Profile paths are HTTP paths relative to `EUTHERBOOT_BOOT_URL`.
 
 ## dnsmasq sketch

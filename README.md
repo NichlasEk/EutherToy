@@ -28,4 +28,4 @@ assignment.
 See [phase 1 netboot](docs/phase-1-netboot.md) for dnsmasq and iPXE wiring.
 See [ISO library workflow](docs/iso-library.md) for drop-in ISO matching and
 the Codex-assisted latest-ISO update flow.
-See [mount-on-demand](docs/mount-on-demand.md) for the no-extraction boot model.
+See [virtual mount boot model](docs/mount-on-demand.md) for no-extraction ISO serving.

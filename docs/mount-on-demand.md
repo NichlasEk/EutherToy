@@ -1,22 +1,26 @@
-# Mount-on-demand boot model
+# Virtual mount boot model
 
-EutherBoot does not extract ISO contents by default. The intended production
-model is:
-
-```text
-iPXE menu item -> /api/boot/profile/<name> -> server loop-mounts ISO -> iPXE loads kernel/initrd over HTTP
-```
-
-iPXE still needs kernel and initrd as normal HTTP files. The ISO mount happens
-on the server, read-only, under:
+EutherBoot does not extract ISO contents by default. The intended model is:
 
 ```text
-eutherboot/www/boot/mounts/<profile>
+iPXE menu item -> /api/boot/profile/<name> -> EutherBoot reads ISO -> iPXE loads kernel/initrd over HTTP
 ```
 
-## Helper
+iPXE still needs kernel and initrd as normal HTTP files. EutherBoot exposes ISO
+contents through virtual HTTP paths:
 
-The app stays unprivileged. Mounting is delegated to a helper configured with:
+```text
+http://SERVER:8080/mounts/<profile>/...
+```
+
+This is not a Linux kernel mount. The web app reads the ISO9660 filesystem
+directly and streams files with HTTP range support, so the app can stay
+unprivileged.
+
+## Optional helper
+
+The loop-mount helper is still available as a fallback for images the virtual
+reader cannot handle:
 
 ```bash
 EUTHERBOOT_MOUNT_HELPER=/home/nichlas/EutherToy/deploy/eutherboot-mount-iso.sh
@@ -48,5 +52,5 @@ Debian Live:
 /mounts/debian-live/live/filesystem.squashfs
 ```
 
-If the helper is not configured, profile selection returns an iPXE error script
-and drops to shell instead of pretending the boot is ready.
+If the virtual reader cannot serve the requested files and the helper is not
+configured, profile selection returns an iPXE error script and drops to shell.

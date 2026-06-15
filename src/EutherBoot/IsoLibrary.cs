@@ -60,7 +60,7 @@ public sealed class IsoLibrary
             complete,
             profile?.Name,
             profile?.Label,
-            profile is null ? null : _assetChecker.Check(profile));
+            profile is null ? null : _assetChecker.Check(profile, profiles));
     }
 
     private static BootProfile? MatchProfile(string fileName, IReadOnlyList<BootProfile> profiles)

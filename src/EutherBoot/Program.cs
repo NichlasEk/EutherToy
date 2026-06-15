@@ -8,7 +8,9 @@ var bootUrl = builder.Configuration["EUTHERBOOT_BOOT_URL"] ?? "http://127.0.0.1:
 var profileStore = new ProfileStore(Path.Combine(root, "profiles"));
 var assignmentStore = new AssignmentStore(Path.Combine(root, "assignments.txt"));
 var staticRoot = Path.Combine(root, "www", "boot");
-var assetChecker = new BootAssetChecker(staticRoot);
+var isoDirectory = Path.Combine(root, "isos");
+var virtualIsoFiles = new VirtualIsoFileService(isoDirectory);
+var assetChecker = new BootAssetChecker(staticRoot, virtualIsoFiles);
 var isoLibrary = new IsoLibrary(Path.Combine(root, "isos"), assetChecker);
 var mountRoot = Path.Combine(staticRoot, "mounts");
 var mountManager = new MountManager(isoLibrary, assetChecker, mountRoot, builder.Configuration["EUTHERBOOT_MOUNT_HELPER"]);
@@ -43,8 +45,29 @@ app.MapGet("/simulator", () => Results.Content(SimulatorPage.Render(LoadMenuProf
 
 app.MapGet("/api/profiles", () => profileStore.LoadProfiles());
 app.MapGet("/api/isos", () => isoLibrary.Scan(profileStore.LoadProfiles()));
-app.MapGet("/api/assets/check", (string kernel, string initrd) => assetChecker.Check(kernel, initrd));
+app.MapGet("/api/assets/check", (string kernel, string initrd) =>
+{
+    var profiles = profileStore.LoadProfiles();
+    var profile = FindProfileForAssetPath(kernel, profiles) ?? FindProfileForAssetPath(initrd, profiles);
+    return profile is null
+        ? assetChecker.Check(kernel, initrd)
+        : assetChecker.Check(kernel, initrd, profile, profiles);
+});
 app.MapGet("/api/assignments", () => assignmentStore.Load());
+
+app.MapGet("/mounts/{profileName}/{**isoPath}", (string profileName, string isoPath) =>
+{
+    var profiles = profileStore.LoadProfiles();
+    var profile = profiles.FirstOrDefault(item => string.Equals(item.Name, profileName, StringComparison.OrdinalIgnoreCase));
+    if (profile is null)
+        return Results.NotFound();
+
+    var file = virtualIsoFiles.Open(profile, $"/mounts/{profileName}/{isoPath}", profiles);
+    if (file is null)
+        return Results.NotFound();
+
+    return Results.File(file.Stream, file.ContentType, enableRangeProcessing: true);
+});
 
 app.MapPost("/api/assignments", (string mac, string profile) =>
 {
@@ -110,3 +133,15 @@ app.MapGet("/generated/menu.ipxe", () =>
 });
 
 app.Run();
+
+static BootProfile? FindProfileForAssetPath(string assetPath, IReadOnlyList<BootProfile> profiles)
+{
+    var normalized = assetPath.Trim();
+    if (normalized.StartsWith("${boot-url}", StringComparison.OrdinalIgnoreCase))
+        normalized = normalized["${boot-url}".Length..];
+    if (Uri.TryCreate(normalized, UriKind.Absolute, out var uri))
+        normalized = uri.AbsolutePath;
+
+    return profiles.FirstOrDefault(profile =>
+        normalized.StartsWith($"/mounts/{profile.Name}/", StringComparison.OrdinalIgnoreCase));
+}

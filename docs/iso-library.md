@@ -16,18 +16,19 @@ mode. Once ISO files exist, the menu is filtered to profiles that match an ISO.
 
 ## Asset readiness
 
-The ISO file itself is only the library record. For iPXE boot, the kernel and
-initrd paths in the matched profile must exist under:
+The ISO file itself is the library record. For iPXE boot, the kernel and initrd
+paths in the matched profile must be available as HTTP paths. By default
+EutherBoot serves them virtually from the ISO under:
 
 ```text
-eutherboot/www/boot
+/mounts/<profile>/...
 ```
 
 Example:
 
 ```text
-profile path: /extract/systemrescue/sysresccd/boot/x86_64/vmlinuz
-real file:    eutherboot/www/boot/extract/systemrescue/sysresccd/boot/x86_64/vmlinuz
+profile path: /mounts/archlinux/arch/boot/x86_64/vmlinuz-linux
+real source:  eutherboot/isos/archlinux-2026.06.01-x86_64.iso
 ```
 
 The admin page and simulator both show whether those files exist.

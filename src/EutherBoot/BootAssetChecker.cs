@@ -3,25 +3,40 @@ namespace EutherBoot;
 public sealed class BootAssetChecker
 {
     private readonly string _staticRoot;
+    private readonly VirtualIsoFileService? _virtualIsoFiles;
 
-    public BootAssetChecker(string staticRoot)
+    public BootAssetChecker(string staticRoot, VirtualIsoFileService? virtualIsoFiles = null)
     {
         _staticRoot = staticRoot;
+        _virtualIsoFiles = virtualIsoFiles;
     }
 
-    public BootAssetStatus Check(BootProfile profile)
-        => Check(profile.Boot.Kernel, profile.Boot.Initrd);
+    public BootAssetStatus Check(BootProfile profile, IReadOnlyList<BootProfile>? profiles = null)
+        => Check(profile.Boot.Kernel, profile.Boot.Initrd, profile, profiles);
 
-    public BootAssetStatus Check(string kernelPath, string initrdPath)
+    public BootAssetStatus Check(string kernelPath, string initrdPath, BootProfile? profile = null, IReadOnlyList<BootProfile>? profiles = null)
     {
         var kernelRelativePath = NormalizeHttpPath(kernelPath);
         var initrdRelativePath = NormalizeHttpPath(initrdPath);
+        var kernelHttpPath = "/" + kernelRelativePath;
+        var initrdHttpPath = "/" + initrdRelativePath;
 
         return new BootAssetStatus(
-            "/" + kernelRelativePath,
-            File.Exists(Path.Combine(_staticRoot, kernelRelativePath)),
-            "/" + initrdRelativePath,
-            File.Exists(Path.Combine(_staticRoot, initrdRelativePath)));
+            kernelHttpPath,
+            Exists(kernelRelativePath, kernelHttpPath, profile, profiles),
+            initrdHttpPath,
+            Exists(initrdRelativePath, initrdHttpPath, profile, profiles));
+    }
+
+    private bool Exists(string relativePath, string httpPath, BootProfile? profile, IReadOnlyList<BootProfile>? profiles)
+    {
+        if (File.Exists(Path.Combine(_staticRoot, relativePath)))
+            return true;
+
+        return profile is not null &&
+               profiles is not null &&
+               _virtualIsoFiles is not null &&
+               _virtualIsoFiles.FileExists(profile, httpPath, profiles);
     }
 
     private static string NormalizeHttpPath(string value)
