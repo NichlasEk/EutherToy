@@ -10,12 +10,15 @@ var assignmentStore = new AssignmentStore(Path.Combine(root, "assignments.txt"))
 var staticRoot = Path.Combine(root, "www", "boot");
 var assetChecker = new BootAssetChecker(staticRoot);
 var isoLibrary = new IsoLibrary(Path.Combine(root, "isos"), assetChecker);
+var mountRoot = Path.Combine(staticRoot, "mounts");
+var mountManager = new MountManager(isoLibrary, assetChecker, mountRoot, builder.Configuration["EUTHERBOOT_MOUNT_HELPER"]);
 
 var app = builder.Build();
 
 Directory.CreateDirectory(root);
 Directory.CreateDirectory(Path.Combine(root, "generated"));
 Directory.CreateDirectory(staticRoot);
+Directory.CreateDirectory(mountRoot);
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -69,6 +72,21 @@ app.MapGet("/api/boot", (string? mac) =>
     var script = assignedProfile is null
         ? MenuGenerator.GenerateDefaultMenu(profiles, bootUrl)
         : MenuGenerator.GenerateSingleBoot(assignedProfile, bootUrl);
+
+    return Results.Text(script, "text/plain");
+});
+
+app.MapGet("/api/boot/profile/{profileName}", (string profileName) =>
+{
+    var profiles = LoadMenuProfiles();
+    var profile = profiles.FirstOrDefault(item => string.Equals(item.Name, profileName, StringComparison.OrdinalIgnoreCase));
+    if (profile is null)
+        return Results.Text("#!ipxe\necho Unknown EutherBoot profile\nshell\n", "text/plain");
+
+    var mountResult = mountManager.EnsureMounted(profile, profileStore.LoadProfiles());
+    var script = mountResult.Success
+        ? MenuGenerator.GenerateSingleBoot(profile, bootUrl)
+        : MenuGenerator.GenerateMountError(profile, mountResult, bootUrl);
 
     return Results.Text(script, "text/plain");
 });

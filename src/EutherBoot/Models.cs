@@ -40,3 +40,9 @@ public sealed record BootAssetStatus(
 {
     public bool Ready => KernelExists && InitrdExists;
 }
+
+public sealed record MountResult(
+    bool Success,
+    string Message,
+    string? IsoPath,
+    string? MountPath);

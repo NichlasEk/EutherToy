@@ -39,6 +39,14 @@ public sealed class IsoLibrary
             .ToList();
     }
 
+    public IsoImage? FindIsoForProfile(BootProfile profile, IReadOnlyList<BootProfile> profiles)
+        => Scan(profiles).FirstOrDefault(iso =>
+            iso.Complete &&
+            string.Equals(iso.MatchedProfileName, profile.Name, StringComparison.OrdinalIgnoreCase));
+
+    public string GetIsoPath(string fileName)
+        => Path.Combine(_isoDirectory, fileName);
+
     private IsoImage ToIsoImage(string path, IReadOnlyList<BootProfile> profiles)
     {
         var info = new FileInfo(path);

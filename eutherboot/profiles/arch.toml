@@ -7,9 +7,9 @@ type = "linux-live"
 filename_contains = ["archlinux", "x86_64"]
 
 [boot]
-kernel = "/extract/arch/arch/boot/x86_64/vmlinuz-linux"
-initrd = "/extract/arch/arch/boot/x86_64/initramfs-linux.img"
+kernel = "/mounts/archlinux/arch/boot/x86_64/vmlinuz-linux"
+initrd = "/mounts/archlinux/arch/boot/x86_64/initramfs-linux.img"
 args = [
-  "archiso_http_srv=${boot-url}/extract/arch/",
+  "archiso_http_srv=${boot-url}/mounts/archlinux/",
   "cow_spacesize=1G"
 ]

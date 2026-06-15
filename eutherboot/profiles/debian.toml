@@ -7,8 +7,8 @@ type = "linux-installer"
 filename_contains = ["debian", "netinst"]
 
 [boot]
-kernel = "/extract/debian/install.amd/vmlinuz"
-initrd = "/extract/debian/install.amd/initrd.gz"
+kernel = "/mounts/debian/install.amd/vmlinuz"
+initrd = "/mounts/debian/install.amd/initrd.gz"
 args = [
   "auto=false",
   "priority=low"

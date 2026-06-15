@@ -2,8 +2,11 @@ bin/
 obj/
 *.user
 *.suo
+logs/
 eutherboot/isos/*
 eutherboot/www/boot/extract/*
+eutherboot/www/boot/mounts/*
 !eutherboot/isos/.gitkeep
 !eutherboot/www/boot/extract/.gitkeep
+!eutherboot/www/boot/mounts/.gitkeep
 eutherboot/assignments.txt

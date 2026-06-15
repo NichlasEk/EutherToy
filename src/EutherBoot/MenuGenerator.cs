@@ -23,7 +23,7 @@ public static class MenuGenerator
         sb.AppendLine();
 
         foreach (var profile in orderedProfiles)
-            AppendBootBlock(sb, profile);
+            AppendChainBlock(sb, profile);
 
         sb.AppendLine(":shell");
         sb.AppendLine("shell");
@@ -45,6 +45,31 @@ public static class MenuGenerator
         return sb.ToString();
     }
 
+    public static string GenerateMountError(BootProfile profile, MountResult mountResult, string bootUrl)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("#!ipxe");
+        sb.AppendLine();
+        sb.AppendLine($"set boot-url {bootUrl.TrimEnd('/')}");
+        sb.AppendLine($"echo EutherBoot could not prepare {profile.Label}");
+        sb.AppendLine($"echo {EscapeEcho(mountResult.Message)}");
+        if (mountResult.IsoPath is not null)
+            sb.AppendLine($"echo ISO: {EscapeEcho(mountResult.IsoPath)}");
+        if (mountResult.MountPath is not null)
+            sb.AppendLine($"echo Mount: {EscapeEcho(mountResult.MountPath)}");
+        sb.AppendLine("shell");
+
+        return sb.ToString();
+    }
+
+    private static void AppendChainBlock(StringBuilder sb, BootProfile profile)
+    {
+        sb.AppendLine($":{SanitizeLabel(profile.Name)}");
+        sb.AppendLine($"chain ${{boot-url}}/api/boot/profile/{Uri.EscapeDataString(profile.Name)}");
+        sb.AppendLine();
+    }
+
     private static void AppendBootBlock(StringBuilder sb, BootProfile profile)
     {
         var args = profile.Boot.Args.Count == 0 ? "" : " " + string.Join(" ", profile.Boot.Args);
@@ -61,4 +86,7 @@ public static class MenuGenerator
 
     private static string SanitizeLabel(string value)
         => string.Concat(value.Select(ch => char.IsLetterOrDigit(ch) || ch == '-' || ch == '_' ? ch : '-'));
+
+    private static string EscapeEcho(string value)
+        => value.Replace('\n', ' ').Replace('\r', ' ');
 }

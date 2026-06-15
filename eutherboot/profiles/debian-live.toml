@@ -7,10 +7,10 @@ type = "linux-live"
 filename_contains = ["debian-live", "amd64"]
 
 [boot]
-kernel = "/extract/debian-live/live/vmlinuz"
-initrd = "/extract/debian-live/live/initrd.img"
+kernel = "/mounts/debian-live/live/vmlinuz"
+initrd = "/mounts/debian-live/live/initrd.img"
 args = [
   "boot=live",
   "components",
-  "fetch=${boot-url}/extract/debian-live/live/filesystem.squashfs"
+  "fetch=${boot-url}/mounts/debian-live/live/filesystem.squashfs"
 ]

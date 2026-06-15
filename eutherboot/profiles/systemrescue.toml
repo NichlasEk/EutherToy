@@ -7,9 +7,9 @@ type = "linux-live"
 filename_contains = ["systemrescue", "sysresccd"]
 
 [boot]
-kernel = "/extract/systemrescue/sysresccd/boot/x86_64/vmlinuz"
-initrd = "/extract/systemrescue/sysresccd/boot/x86_64/sysresccd.img"
+kernel = "/mounts/systemrescue/sysresccd/boot/x86_64/vmlinuz"
+initrd = "/mounts/systemrescue/sysresccd/boot/x86_64/sysresccd.img"
 args = [
   "archisobasedir=sysresccd",
-  "archiso_http_srv=${boot-url}/extract/systemrescue/"
+  "archiso_http_srv=${boot-url}/mounts/systemrescue/"
 ]
