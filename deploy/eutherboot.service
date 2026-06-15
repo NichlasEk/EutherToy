@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 WorkingDirectory=/opt/eutherboot
 Environment=EUTHERBOOT_ROOT=/srv/eutherboot
-Environment=EUTHERBOOT_BOOT_URL=http://192.168.1.50:8080
+Environment=EUTHERBOOT_BOOT_URL=http://192.168.32.88:8080
 ExecStart=/usr/bin/dotnet /opt/eutherboot/EutherBoot.dll --urls http://0.0.0.0:8080
 Restart=on-failure
 RestartSec=2

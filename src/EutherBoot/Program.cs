@@ -43,6 +43,18 @@ app.MapGet("/", () =>
 
 app.MapGet("/simulator", () => Results.Content(SimulatorPage.Render(LoadMenuProfiles(), bootUrl), "text/html"));
 
+app.MapGet("/boot.ipxe", () =>
+{
+    var script = $$"""
+    #!ipxe
+
+    set boot-url {{bootUrl.TrimEnd('/')}}
+    chain ${boot-url}/api/boot?mac=${net0/mac}
+    """;
+
+    return Results.Text(script, "text/plain");
+});
+
 app.MapGet("/api/profiles", () => profileStore.LoadProfiles());
 app.MapGet("/api/isos", () => isoLibrary.Scan(profileStore.LoadProfiles()));
 app.MapGet("/api/assets/check", (string kernel, string initrd) =>

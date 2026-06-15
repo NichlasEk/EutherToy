@@ -7,6 +7,7 @@ Current v0.1 scope:
 - Read boot profiles from `eutherboot/profiles/*.toml`
 - Generate a default iPXE menu
 - Serve dynamic iPXE scripts from `/api/boot?mac=...`
+- Serve a dynamic iPXE bootstrap script from `/boot.ipxe`
 - Store simple MAC-to-profile assignments
 - Serve boot files from `eutherboot/www/boot`
 
@@ -26,6 +27,8 @@ kernel/initrd/args, checks whether boot assets exist, and can set or clear a MAC
 assignment.
 
 See [phase 1 netboot](docs/phase-1-netboot.md) for dnsmasq and iPXE wiring.
+See [LAN ProxyDHCP test](docs/lan-proxydhcp.md) for PXE testing without
+changing router DNS/DHCP settings.
 See [ISO library workflow](docs/iso-library.md) for drop-in ISO matching and
 the Codex-assisted latest-ISO update flow.
 See [virtual mount boot model](docs/mount-on-demand.md) for no-extraction ISO serving.
