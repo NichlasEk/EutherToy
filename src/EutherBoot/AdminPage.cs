@@ -21,7 +21,7 @@ public static class AdminPage
         sb.AppendLine("</head>");
         sb.AppendLine("<body><main>");
         sb.AppendLine("<h1>EutherBoot</h1>");
-        sb.AppendLine($"<div class=\"muted\">boot-url: <code>{WebUtility.HtmlEncode(bootUrl)}</code></div>");
+        sb.AppendLine($"<div class=\"muted\">boot-url: <code>{WebUtility.HtmlEncode(bootUrl)}</code> · <a href=\"/simulator\">iPXE-simulator</a></div>");
 
         sb.AppendLine("<div class=\"grid\">");
         sb.AppendLine("<section class=\"panel\"><h2>Profiler</h2><table><thead><tr><th>Namn</th><th>Typ</th><th>Kernel</th></tr></thead><tbody>");

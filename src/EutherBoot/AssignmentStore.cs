@@ -43,6 +43,20 @@ public sealed class AssignmentStore
         File.WriteAllLines(_path, assignments.Select(item => $"{item.Mac}={item.ProfileName}"));
     }
 
+    public void Remove(string mac)
+    {
+        if (!File.Exists(_path))
+            return;
+
+        var normalized = NormalizeMac(mac);
+        var assignments = Load()
+            .Where(item => item.Mac != normalized)
+            .OrderBy(item => item.Mac, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        File.WriteAllLines(_path, assignments.Select(item => $"{item.Mac}={item.ProfileName}"));
+    }
+
     public static string NormalizeMac(string mac)
         => mac.Trim().Replace('-', ':').ToLowerInvariant();
 }

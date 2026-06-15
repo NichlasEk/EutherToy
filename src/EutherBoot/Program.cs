@@ -22,6 +22,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.MapGet("/", () => Results.Content(AdminPage.Render(profileStore.LoadProfiles(), assignmentStore.Load(), bootUrl), "text/html"));
+app.MapGet("/simulator", () => Results.Content(SimulatorPage.Render(profileStore.LoadProfiles(), bootUrl), "text/html"));
 
 app.MapGet("/api/profiles", () => profileStore.LoadProfiles());
 app.MapGet("/api/assignments", () => assignmentStore.Load());
@@ -33,6 +34,12 @@ app.MapPost("/api/assignments", (string mac, string profile) =>
 
     assignmentStore.Set(mac, profile);
     return Results.Ok(new BootAssignment(AssignmentStore.NormalizeMac(mac), profile));
+});
+
+app.MapDelete("/api/assignments", (string mac) =>
+{
+    assignmentStore.Remove(mac);
+    return Results.NoContent();
 });
 
 app.MapGet("/api/boot", (string? mac) =>
