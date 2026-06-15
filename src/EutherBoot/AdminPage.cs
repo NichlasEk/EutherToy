@@ -40,10 +40,10 @@ public static class AdminPage
             foreach (var iso in isos)
             {
                 sb.AppendLine("<tr>");
-                sb.AppendLine($"<td><code>{WebUtility.HtmlEncode(iso.FileName)}</code><br><span class=\"muted\">{FormatBytes(iso.SizeBytes)}</span></td>");
+                sb.AppendLine($"<td><code>{WebUtility.HtmlEncode(iso.FileName)}</code><br><span class=\"muted\">{FormatBytes(iso.SizeBytes)}</span>{(iso.Complete ? "" : "<br><span class=\"warn\">nedladdning ofärdig</span>")}</td>");
                 sb.AppendLine(iso.MatchedProfileName is null
                     ? "<td><span class=\"warn\">Ingen profil matchar filnamnet</span></td>"
-                    : $"<td>{WebUtility.HtmlEncode(iso.MatchedProfileLabel ?? iso.MatchedProfileName)}<br><span class=\"muted\">{WebUtility.HtmlEncode(iso.MatchedProfileName)}</span></td>");
+                    : $"<td>{WebUtility.HtmlEncode(iso.MatchedProfileLabel ?? iso.MatchedProfileName)}<br><span class=\"muted\">{WebUtility.HtmlEncode(iso.MatchedProfileName)}{(iso.Complete ? "" : " · ej i meny ännu")}</span></td>");
 
                 if (iso.Assets is null)
                 {

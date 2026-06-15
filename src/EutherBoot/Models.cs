@@ -27,6 +27,7 @@ public sealed record IsoImage(
     string FileName,
     long SizeBytes,
     DateTimeOffset LastWriteUtc,
+    bool Complete,
     string? MatchedProfileName,
     string? MatchedProfileLabel,
     BootAssetStatus? Assets);

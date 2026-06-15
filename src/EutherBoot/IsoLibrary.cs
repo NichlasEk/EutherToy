@@ -24,13 +24,14 @@ public sealed class IsoLibrary
 
     public IReadOnlyList<BootProfile> GetMenuProfiles(IReadOnlyList<BootProfile> profiles)
     {
-        var matchedNames = Scan(profiles)
-            .Where(iso => iso.MatchedProfileName is not null)
+        var isos = Scan(profiles);
+        if (isos.Count == 0)
+            return profiles;
+
+        var matchedNames = isos
+            .Where(iso => iso.Complete && iso.MatchedProfileName is not null)
             .Select(iso => iso.MatchedProfileName!)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        if (matchedNames.Count == 0)
-            return profiles;
 
         return profiles
             .Where(profile => matchedNames.Contains(profile.Name))
@@ -42,11 +43,13 @@ public sealed class IsoLibrary
     {
         var info = new FileInfo(path);
         var profile = MatchProfile(info.Name, profiles);
+        var complete = !File.Exists(path + ".aria2");
 
         return new IsoImage(
             info.Name,
             info.Length,
             info.LastWriteTimeUtc,
+            complete,
             profile?.Name,
             profile?.Label,
             profile is null ? null : _assetChecker.Check(profile));

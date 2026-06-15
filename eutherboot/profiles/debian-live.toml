@@ -1,0 +1,16 @@
+[id]
+name = "debian-live"
+label = "Debian Live"
+type = "linux-live"
+
+[match]
+filename_contains = ["debian-live", "amd64"]
+
+[boot]
+kernel = "/extract/debian-live/live/vmlinuz"
+initrd = "/extract/debian-live/live/initrd.img"
+args = [
+  "boot=live",
+  "components",
+  "fetch=${boot-url}/extract/debian-live/live/filesystem.squashfs"
+]
