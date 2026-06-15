@@ -1,0 +1,9 @@
+bin/
+obj/
+*.user
+*.suo
+eutherboot/isos/*
+eutherboot/www/boot/extract/*
+!eutherboot/isos/.gitkeep
+!eutherboot/www/boot/extract/.gitkeep
+eutherboot/assignments.txt

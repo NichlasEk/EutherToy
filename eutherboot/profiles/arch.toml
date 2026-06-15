@@ -1,0 +1,15 @@
+[id]
+name = "archlinux"
+label = "Arch Linux"
+type = "linux-live"
+
+[match]
+filename_contains = ["archlinux", "x86_64"]
+
+[boot]
+kernel = "/extract/arch/arch/boot/x86_64/vmlinuz-linux"
+initrd = "/extract/arch/arch/boot/x86_64/initramfs-linux.img"
+args = [
+  "archiso_http_srv=${boot-url}/extract/arch/",
+  "cow_spacesize=1G"
+]

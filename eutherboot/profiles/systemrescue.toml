@@ -1,0 +1,15 @@
+[id]
+name = "systemrescue"
+label = "SystemRescue"
+type = "linux-live"
+
+[match]
+filename_contains = ["systemrescue", "sysresccd"]
+
+[boot]
+kernel = "/extract/systemrescue/sysresccd/boot/x86_64/vmlinuz"
+initrd = "/extract/systemrescue/sysresccd/boot/x86_64/sysresccd.img"
+args = [
+  "archisobasedir=sysresccd",
+  "archiso_http_srv=${boot-url}/extract/systemrescue/"
+]
