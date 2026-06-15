@@ -25,7 +25,7 @@ http://SERVER:8080/api/boot?mac=52:54:00:12:34:56
 
 Use `/simulator` before testing with real PXE hardware. It calls the same boot
 endpoint as iPXE, shows the generated menu, and previews the exact kernel,
-initrd, and args for a selected item or assigned MAC.
+initrd, args, and local asset readiness for a selected item or assigned MAC.
 
 The iPXE bootstrap script should chain:
 

@@ -79,16 +79,35 @@ function parseScript(text) {
   return { items, blocks };
 }
 
-function describeBoot(id, block) {
+async function describeBoot(id, block) {
   const kernel = block.find(line => line.startsWith('kernel ')) || '';
   const initrd = block.find(line => line.startsWith('initrd ')) || '';
+  const kernelPath = kernel.replace(/^kernel\s+/, '').split(/\s+/)[0] || '';
+  const initrdPath = initrd.replace(/^initrd\s+/, '') || '';
   const args = kernel.split(/\s+/).slice(2).join(' ');
   bootEl.innerHTML = `
     <h2>Boot preview</h2>
     <div class="kv"><strong>Profil</strong><code>${escapeHtml(id)}</code></div>
-    <div class="kv"><strong>Kernel</strong><code>${escapeHtml(kernel.replace(/^kernel\s+/, '').split(/\s+/)[0] || '')}</code></div>
-    <div class="kv"><strong>Initrd</strong><code>${escapeHtml(initrd.replace(/^initrd\s+/, '') || '')}</code></div>
-    <div class="kv"><strong>Args</strong><code>${escapeHtml(args || '(inga)')}</code></div>`;
+    <div class="kv"><strong>Kernel</strong><code>${escapeHtml(kernelPath)}</code></div>
+    <div class="kv"><strong>Initrd</strong><code>${escapeHtml(initrdPath)}</code></div>
+    <div class="kv"><strong>Args</strong><code>${escapeHtml(args || '(inga)')}</code></div>
+    <div class="kv"><strong>Assets</strong><span class="muted">Kontrollerar filer...</span></div>`;
+
+  if (!kernelPath || !initrdPath) return;
+
+  const query = new URLSearchParams({ kernel: kernelPath, initrd: initrdPath });
+  const response = await fetch(`/api/assets/check?${query}`);
+  const assets = await response.json();
+  const kernelClass = assets.kernelExists ? 'ok' : 'warn';
+  const initrdClass = assets.initrdExists ? 'ok' : 'warn';
+  bootEl.querySelector('.kv:last-child').innerHTML = `
+    <strong>Assets</strong>
+    <span>
+      <span class="${kernelClass}">kernel ${assets.kernelExists ? 'finns' : 'saknas'}</span>
+      <code>${escapeHtml(assets.kernelPath)}</code><br>
+      <span class="${initrdClass}">initrd ${assets.initrdExists ? 'finns' : 'saknas'}</span>
+      <code>${escapeHtml(assets.initrdPath)}</code>
+    </span>`;
 }
 
 function render(text) {
@@ -104,12 +123,12 @@ function render(text) {
       const button = document.createElement('button');
       button.className = 'choice';
       button.innerHTML = `<strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.id)}</span>`;
-      button.onclick = () => {
+      button.onclick = async () => {
         if (item.id === 'shell') {
           bootEl.innerHTML = '<h2>Boot preview</h2><p class="warn">Det här valet öppnar iPXE shell.</p>';
           return;
         }
-        describeBoot(item.id, parsed.blocks[item.id] || []);
+        await describeBoot(item.id, parsed.blocks[item.id] || []);
       };
       menuEl.appendChild(button);
     }

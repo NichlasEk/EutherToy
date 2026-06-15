@@ -7,24 +7,40 @@ var bootUrl = builder.Configuration["EUTHERBOOT_BOOT_URL"] ?? "http://127.0.0.1:
 
 var profileStore = new ProfileStore(Path.Combine(root, "profiles"));
 var assignmentStore = new AssignmentStore(Path.Combine(root, "assignments.txt"));
+var staticRoot = Path.Combine(root, "www", "boot");
+var assetChecker = new BootAssetChecker(staticRoot);
+var isoLibrary = new IsoLibrary(Path.Combine(root, "isos"), assetChecker);
 
 var app = builder.Build();
 
 Directory.CreateDirectory(root);
 Directory.CreateDirectory(Path.Combine(root, "generated"));
-Directory.CreateDirectory(Path.Combine(root, "www", "boot"));
+Directory.CreateDirectory(staticRoot);
 
-var staticRoot = Path.Combine(root, "www", "boot");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(staticRoot),
     RequestPath = ""
 });
 
-app.MapGet("/", () => Results.Content(AdminPage.Render(profileStore.LoadProfiles(), assignmentStore.Load(), bootUrl), "text/html"));
-app.MapGet("/simulator", () => Results.Content(SimulatorPage.Render(profileStore.LoadProfiles(), bootUrl), "text/html"));
+IReadOnlyList<BootProfile> LoadMenuProfiles()
+{
+    var profiles = profileStore.LoadProfiles();
+    return isoLibrary.GetMenuProfiles(profiles);
+}
+
+app.MapGet("/", () =>
+{
+    var profiles = profileStore.LoadProfiles();
+    var isos = isoLibrary.Scan(profiles);
+    return Results.Content(AdminPage.Render(profiles, LoadMenuProfiles(), isos, assignmentStore.Load(), bootUrl), "text/html");
+});
+
+app.MapGet("/simulator", () => Results.Content(SimulatorPage.Render(LoadMenuProfiles(), bootUrl), "text/html"));
 
 app.MapGet("/api/profiles", () => profileStore.LoadProfiles());
+app.MapGet("/api/isos", () => isoLibrary.Scan(profileStore.LoadProfiles()));
+app.MapGet("/api/assets/check", (string kernel, string initrd) => assetChecker.Check(kernel, initrd));
 app.MapGet("/api/assignments", () => assignmentStore.Load());
 
 app.MapPost("/api/assignments", (string mac, string profile) =>
@@ -44,7 +60,7 @@ app.MapDelete("/api/assignments", (string mac) =>
 
 app.MapGet("/api/boot", (string? mac) =>
 {
-    var profiles = profileStore.LoadProfiles();
+    var profiles = LoadMenuProfiles();
     var assignedProfileName = string.IsNullOrWhiteSpace(mac) ? null : assignmentStore.GetProfileForMac(mac);
     var assignedProfile = assignedProfileName is null
         ? null
@@ -59,7 +75,7 @@ app.MapGet("/api/boot", (string? mac) =>
 
 app.MapPost("/api/generate", () =>
 {
-    var menu = MenuGenerator.GenerateDefaultMenu(profileStore.LoadProfiles(), bootUrl);
+    var menu = MenuGenerator.GenerateDefaultMenu(LoadMenuProfiles(), bootUrl);
     var generatedPath = Path.Combine(root, "generated", "menu.ipxe");
     var publicPath = Path.Combine(root, "www", "boot", "menu.ipxe");
 
@@ -71,7 +87,7 @@ app.MapPost("/api/generate", () =>
 
 app.MapGet("/generated/menu.ipxe", () =>
 {
-    var menu = MenuGenerator.GenerateDefaultMenu(profileStore.LoadProfiles(), bootUrl);
+    var menu = MenuGenerator.GenerateDefaultMenu(LoadMenuProfiles(), bootUrl);
     return Results.Text(menu, "text/plain");
 });
 

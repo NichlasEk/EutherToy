@@ -22,3 +22,20 @@ public sealed class MatchRules
 }
 
 public sealed record BootAssignment(string Mac, string ProfileName);
+
+public sealed record IsoImage(
+    string FileName,
+    long SizeBytes,
+    DateTimeOffset LastWriteUtc,
+    string? MatchedProfileName,
+    string? MatchedProfileLabel,
+    BootAssetStatus? Assets);
+
+public sealed record BootAssetStatus(
+    string KernelPath,
+    bool KernelExists,
+    string InitrdPath,
+    bool InitrdExists)
+{
+    public bool Ready => KernelExists && InitrdExists;
+}

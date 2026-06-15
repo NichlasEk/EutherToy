@@ -22,6 +22,9 @@ Open `http://localhost:8080/` for the admin panel.
 
 Open `http://localhost:8080/simulator` to test the same iPXE flow in a browser.
 The simulator fetches `/api/boot?mac=...`, renders the menu, previews selected
-kernel/initrd/args, and can set or clear a MAC assignment.
+kernel/initrd/args, checks whether boot assets exist, and can set or clear a MAC
+assignment.
 
 See [phase 1 netboot](docs/phase-1-netboot.md) for dnsmasq and iPXE wiring.
+See [ISO library workflow](docs/iso-library.md) for drop-in ISO matching and
+the Codex-assisted latest-ISO update flow.
