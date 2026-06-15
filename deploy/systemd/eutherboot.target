@@ -1,0 +1,7 @@
+[Unit]
+Description=EutherBoot LAN PXE stack
+Wants=eutherboot-web.service eutherboot-pxe.service
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target

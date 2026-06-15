@@ -1,0 +1,19 @@
+[Unit]
+Description=EutherBoot web control plane
+After=network-online.target
+Wants=network-online.target
+PartOf=eutherboot.target
+
+[Service]
+Type=simple
+User=nichlas
+Group=nichlas
+WorkingDirectory=/home/nichlas/EutherToy
+Environment=EUTHERBOOT_ROOT=/home/nichlas/EutherToy/eutherboot
+Environment=EUTHERBOOT_BOOT_URL=http://192.168.32.88:8080
+ExecStart=/usr/bin/dotnet run --project /home/nichlas/EutherToy/src/EutherBoot --urls http://0.0.0.0:8080
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=eutherboot.target

@@ -1,0 +1,8 @@
+"custom/eutherboot": {
+  "return-type": "json",
+  "exec": "/home/nichlas/EutherToy/deploy/waybar/eutherboot-toggle.sh status",
+  "on-click": "/home/nichlas/EutherToy/deploy/waybar/eutherboot-toggle.sh toggle",
+  "on-click-right": "/home/nichlas/EutherToy/deploy/waybar/eutherboot-toggle.sh open",
+  "interval": 5,
+  "tooltip": true
+}

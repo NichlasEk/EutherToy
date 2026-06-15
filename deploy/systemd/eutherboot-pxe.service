@@ -1,0 +1,14 @@
+[Unit]
+Description=EutherBoot ProxyDHCP and TFTP
+After=network-online.target eutherboot-web.service
+Wants=network-online.target
+PartOf=eutherboot.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/dnsmasq --keep-in-foreground --conf-file=/home/nichlas/EutherToy/deploy/dnsmasq-eutherboot.conf --pid-file=/run/eutherboot-dnsmasq.pid
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=eutherboot.target
