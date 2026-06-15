@@ -23,12 +23,12 @@ Status:
   systemctl status eutherboot-web.service eutherboot-pxe.service
 MSG
 
-if [[ ! -f /srv/eutherboot-tftp/ipxe.efi || ! -f /srv/eutherboot-tftp/undionly.kpxe ]]; then
+if [[ ! -f /srv/eutherboot-tftp/ipxe.efi || ! -f /srv/eutherboot-tftp/ipxe.pxe ]]; then
   cat <<'MSG'
 
 TFTP root is ready at /srv/eutherboot-tftp, but one or both iPXE binaries are
 missing:
   /srv/eutherboot-tftp/ipxe.efi
-  /srv/eutherboot-tftp/undionly.kpxe
+  /srv/eutherboot-tftp/ipxe.pxe
 MSG
 fi

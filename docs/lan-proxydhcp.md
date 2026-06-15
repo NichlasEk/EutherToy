@@ -18,7 +18,7 @@ Host detected during setup:
   out IP leases.
 - The normal router/DHCP server still provides client IP, DNS, gateway, and
   lease time.
-- dnsmasq only adds PXE boot metadata and serves `ipxe.efi` or `undionly.kpxe`
+- dnsmasq only adds PXE boot metadata and serves `ipxe.efi` or `ipxe.pxe`
   over TFTP.
 
 ## Run the app on the LAN
@@ -44,7 +44,7 @@ Create a TFTP root and put iPXE binaries there:
 ```bash
 sudo mkdir -p /srv/eutherboot-tftp
 sudo cp /path/to/ipxe.efi /srv/eutherboot-tftp/ipxe.efi
-sudo cp /path/to/undionly.kpxe /srv/eutherboot-tftp/undionly.kpxe
+sudo cp /path/to/ipxe.pxe /srv/eutherboot-tftp/ipxe.pxe
 ```
 
 On Arch Linux these files normally come from an `ipxe` package if available in
@@ -61,7 +61,7 @@ sudo dnsmasq --keep-in-foreground --conf-file=/home/nichlas/EutherToy/deploy/dns
 When a PXE client starts, the flow is:
 
 ```text
-firmware PXE -> TFTP ipxe.efi/undionly.kpxe -> http://192.168.32.88:8080/boot.ipxe -> /api/boot?mac=...
+firmware PXE -> TFTP ipxe.efi/ipxe.pxe -> http://192.168.32.88:8080/boot.ipxe -> /api/boot?mac=...
 ```
 
 Firewall needs to allow UDP `67`, UDP `69`, UDP `4011`, and TCP `8080` from the
