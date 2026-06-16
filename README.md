@@ -29,6 +29,8 @@ assignment.
 See [phase 1 netboot](docs/phase-1-netboot.md) for dnsmasq and iPXE wiring.
 See [LAN ProxyDHCP test](docs/lan-proxydhcp.md) for PXE testing without
 changing router DNS/DHCP settings.
+See [development handoff](docs/development-handoff.md) for the current local
+state and next-step checklist.
 See [ISO library workflow](docs/iso-library.md) for drop-in ISO matching and
 the Codex-assisted latest-ISO update flow.
 See [virtual mount boot model](docs/mount-on-demand.md) for no-extraction ISO serving.
