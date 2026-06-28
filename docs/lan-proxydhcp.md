@@ -14,12 +14,15 @@ Host detected during setup:
 `deploy/dnsmasq-eutherboot.conf` is configured as ProxyDHCP:
 
 - `port=0` disables DNS service.
+- `dhcp-no-override` keeps the boot filename in the classic BOOTP fields for
+  firmware that misbehaves when dnsmasq compresses it into DHCP options.
 - `dhcp-range=192.168.32.0,proxy,255.255.255.0` prevents dnsmasq from handing
   out IP leases.
 - The normal router/DHCP server still provides client IP, DNS, gateway, and
   lease time.
-- dnsmasq only adds PXE boot metadata and serves `ipxe.efi` or `ipxe.pxe`
-  over TFTP.
+- dnsmasq adds both PXE menu metadata and explicit `dhcp-boot` filenames so
+  UEFI firmware that only partially implements ProxyDHCP still fetches
+  `ipxe.efi` or `ipxe.pxe` over TFTP.
 
 ## Run the app on the LAN
 
@@ -43,12 +46,12 @@ Create a TFTP root and put iPXE binaries there:
 
 ```bash
 sudo mkdir -p /srv/eutherboot-tftp
-sudo cp /path/to/ipxe.efi /srv/eutherboot-tftp/ipxe.efi
-sudo cp /path/to/ipxe.pxe /srv/eutherboot-tftp/ipxe.pxe
+sudo /home/nichlas/EutherToy/deploy/sync-ipxe-assets.sh /srv/eutherboot-tftp
 ```
 
-On Arch Linux these files normally come from an `ipxe` package if available in
-the enabled repositories, or from official iPXE build artifacts.
+On Arch Linux the helper copies the packaged files from `/usr/share/ipxe/`.
+If the `ipxe` package is not installed, install it first or provide equivalent
+build artifacts manually.
 
 ## Start dnsmasq for the test
 
@@ -66,3 +69,20 @@ firmware PXE -> TFTP ipxe.efi/ipxe.pxe -> http://192.168.32.88:8080/boot.ipxe ->
 
 Firewall needs to allow UDP `67`, UDP `69`, UDP `4011`, and TCP `8080` from the
 LAN for the full PXE path.
+
+## Physical failure signals
+
+When debugging a real client, watch both services at the same time:
+
+```bash
+journalctl -u eutherboot-pxe.service -f
+journalctl -u eutherboot-web.service -f
+```
+
+Interpretation:
+
+- PXE log shows `PXE(... ) ... proxy`, but the web log stays empty:
+  firmware saw ProxyDHCP but never reached iPXE HTTP chain. Check Secure Boot,
+  firmware PXE quality, and whether the client ever fetched `ipxe.efi`.
+- PXE log shows the client and the web log shows `/boot.ipxe`:
+  DHCP/TFTP succeeded and the failure moved into iPXE script or boot profile.

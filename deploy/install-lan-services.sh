@@ -7,6 +7,7 @@ install -Dm644 "$repo_root/deploy/systemd/eutherboot.target" /etc/systemd/system
 install -Dm644 "$repo_root/deploy/systemd/eutherboot-web.service" /etc/systemd/system/eutherboot-web.service
 install -Dm644 "$repo_root/deploy/systemd/eutherboot-pxe.service" /etc/systemd/system/eutherboot-pxe.service
 install -d -m 0755 /srv/eutherboot-tftp
+"$repo_root/deploy/sync-ipxe-assets.sh" /srv/eutherboot-tftp
 
 systemctl daemon-reload
 
@@ -22,13 +23,3 @@ Stop:
 Status:
   systemctl status eutherboot-web.service eutherboot-pxe.service
 MSG
-
-if [[ ! -f /srv/eutherboot-tftp/ipxe.efi || ! -f /srv/eutherboot-tftp/ipxe.pxe ]]; then
-  cat <<'MSG'
-
-TFTP root is ready at /srv/eutherboot-tftp, but one or both iPXE binaries are
-missing:
-  /srv/eutherboot-tftp/ipxe.efi
-  /srv/eutherboot-tftp/ipxe.pxe
-MSG
-fi

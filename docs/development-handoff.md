@@ -1,6 +1,6 @@
 # EutherBoot development handoff
 
-Last updated: 2026-06-16
+Last updated: 2026-06-28
 
 ## Current state
 
@@ -63,6 +63,22 @@ eutherboot-pxe.service inactive
 ```
 
 PXE is therefore off until started through the Waybar widget or systemctl.
+
+## 2026-06-28 physical boot finding
+
+A real PXE attempt on 2026-06-28 reached `dnsmasq` but not the web control
+plane:
+
+- `eutherboot-pxe.service` saw PXE client `fc:34:97:11:18:02` on `enp6s0`
+  around `13:52`.
+- `eutherboot-web.service` logged no `/boot.ipxe` or `/api/boot` request during
+  that attempt.
+
+That narrows the failure to the firmware/TFTP/iPXE handoff, before HTTP.
+To improve compatibility, `deploy/dnsmasq-eutherboot.conf` now includes
+explicit `dhcp-boot` entries for BIOS and UEFI in addition to the existing
+ProxyDHCP `pxe-service` menu entries, and also sets `dhcp-no-override` for
+broken firmware that needs classic BOOTP filename fields.
 
 ## How to start and stop
 
@@ -151,19 +167,23 @@ normal DHCP server.
   `4011`, and TCP `8080` allowed.
 - The Waybar helper uses `pkexec systemctl ...`, so the first toggle can ask for
   polkit authentication.
+- Some clients may still require Secure Boot to be disabled before they will
+  run the unsigned `ipxe.efi` loader.
 
 ## Suggested next steps
 
-1. Do the first physical PXE boot with an Ethernet-connected UEFI client.
-2. If firmware reaches iPXE but menu fails, inspect:
+1. Re-test the same physical PXE client with Secure Boot disabled.
+2. Watch both logs during that retry:
    - `journalctl -u eutherboot-pxe.service -f`
    - `journalctl -u eutherboot-web.service -f`
-3. Replace `dotnet run` service with `dotnet publish` output.
-4. Add a real ISO upload/drop-watch UI in the admin panel.
-5. Add a "refresh latest ISO" helper flow for Debian Live and Arch.
-6. Add better profile validation in the web UI.
-7. Add optional one-shot MAC assignment clearing after a successful boot request.
-8. Later: add autoinstall profile metadata for Debian preseed, Ubuntu autoinstall,
+3. If PXE logs appear but web logs stay empty, capture whether the client ever
+   tries to fetch `ipxe.efi` and consider a second UEFI loader variant.
+4. Replace `dotnet run` service with `dotnet publish` output.
+5. Add a real ISO upload/drop-watch UI in the admin panel.
+6. Add a "refresh latest ISO" helper flow for Debian Live and Arch.
+7. Add better profile validation in the web UI.
+8. Add optional one-shot MAC assignment clearing after a successful boot request.
+9. Later: add autoinstall profile metadata for Debian preseed, Ubuntu autoinstall,
    Arch scripts, NixOS configs, and similar workflows.
 
 ## Related docs
